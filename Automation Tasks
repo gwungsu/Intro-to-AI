@@ -1,0 +1,28 @@
+import requests
+import os
+from bs4 import BeautifulSoup
+
+# URL of the webpage containing the files to download
+url = "https://example.com/files/"
+
+# Send a GET request to the URL and parse the HTML response using BeautifulSoup
+response = requests.get(url)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find all links on the webpage and filter for links to files with a certain extension (e.g. .txt)
+links = soup.find_all("a")
+file_links = [link.get("href") for link in links if link.get("href").endswith(".txt")]
+
+# Create a new directory to store the downloaded files
+if not os.path.exists("downloaded_files"):
+    os.makedirs("downloaded_files")
+
+# Download each file and save it in the new directory with a new name
+for i, file_link in enumerate(file_links):
+    file_response = requests.get(url + file_link)
+    file_name = f"file_{i}.txt"
+    with open(os.path.join("downloaded_files", file_name), "wb") as f:
+        f.write(file_response.content)
+    print(f"Downloaded {file_name}")
+
+print("All files downloaded and saved.")
